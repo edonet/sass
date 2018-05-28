@@ -39,7 +39,7 @@ async function start() {
 
 
     // 未指定文件时退出
-    if (!src) {
+    if (!src || !src.endsWith('.scss')) {
         return stdout.warn('--> warn: the file need to compiled not found!');
     }
 
