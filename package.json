@@ -1,5 +1,5 @@
 {
-    "name": "sass",
+    "name": "@arted/sass",
     "version": "0.0.1",
     "description": "sass for node",
     "main": "index.js",
