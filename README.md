@@ -1,4 +1,4 @@
-# sass
+# SASS
 SASS and Autoprefix
 
 ## Installation
