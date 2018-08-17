@@ -1,8 +1,8 @@
 {
     "name": "@arted/sass",
-    "version": "0.0.1",
+    "version": "0.0.101",
     "description": "sass for node",
-    "main": "index.js",
+    "main": "lib/index.js",
     "bin": {
         "sass": "./scripts/sass.js"
     },
@@ -10,9 +10,9 @@
     "author": "edoner <edonet@163.com>",
     "license": "MIT",
     "dependencies": {
-        "autoprefixer": "^8.2.0",
-        "node-sass": "^4.8.3",
-        "postcss": "^6.0.21",
-        "ylan": "^0.0.101"
+        "@arted/utils": "^0.0.116",
+        "autoprefixer": "^9.1.1",
+        "node-sass": "^4.9.3",
+        "postcss": "^7.0.2"
     }
 }

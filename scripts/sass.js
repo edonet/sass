@@ -10,67 +10,55 @@
 'use strict';
 
 
-
 /**
  *****************************************
  * 加载依赖
  *****************************************
  */
 const
-    fs = require('fs'),
-    sass = require('node-sass'),
-    postcss = require('postcss'),
-    stdout = require('ylan/stdout'),
-    promisify = require('ylan/promisify'),
-    postcssOptions = require('./postcss.conf');
+    argv = require('yargs').argv,
+    stdout = require('@arted/utils/stdout'),
+    transformFile = require('../lib/transformFile');
 
 
-/*
- *************************************************
- * 定义命令运行函数
- *************************************************
+/**
+ *****************************************
+ * 定义脚本
+ *****************************************
  */
-async function start() {
+async function run() {
+    let src = argv.src || argv._[0];
 
-    // 获取指定的输入文件
-    let src = process.argv[2],
-        dist,
-        res;
+    // 存在指定文件
+    if (src) {
+        let dist = argv.dist || argv._[1] || src.replace(/\.s(c|a)ss$/, '') + '.css',
+            options = argv.config && require(argv.config),
+            result;
 
+        // 打印信息
+        stdout.block('Sass and Autoprefixer');
+        stdout.info(`source: ${src}`);
+        stdout.info(`output: ${dist}`);
 
-    // 未指定文件时退出
-    if (!src || !src.endsWith('.scss')) {
-        return stdout.warn('--> warn: the file need to compiled not found!');
+        // 编译文件
+        result = await transformFile(src, dist, options);
+
+        // 编译成功
+        stdout.info(`size: ${result.css.length}`);
+        stdout.info('compiled successfully!\n');
+
+        // 返回编译结果
+        return result;
     }
 
-    // 获取输出文件路径
-    dist = process.argv[3] || src.replace(/\.scss$/, '.css');
-
     // 打印信息
-    stdout.info('-'.repeat(80));
-    stdout.info('Sass and Autoprefixer');
-    stdout.info('-'.repeat(80));
-    stdout.info(`source: ${src}`);
-    stdout.info(`output: ${dist}`);
-
-    // 编译【sass】文件
-    res = await promisify(sass.render)({ file: src, outputStyle: 'compressed' });
-
-    // 添加兼容前缀
-    res = await postcss(postcssOptions).process(res.css, { from: src, to: dist });
-
-    // 写入文件
-    await promisify(fs.writeFile)(dist, res.css);
-
-    // 编译成功
-    stdout.info(`size: ${res.css.length}`);
-    stdout.info('sass compiled successfully!\n');
+    stdout.warn('--> warn: the file need to compiled not found!');
 }
 
 
-/*
- *************************************************
- * 抛出回调接口
- *************************************************
+/**
+ *****************************************
+ * 抛出接口
+ *****************************************
  */
-module.exports = start().catch(stdout.error);
+module.exports = run().catch(stdout.error);

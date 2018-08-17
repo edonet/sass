@@ -1,0 +1,139 @@
+/**
+ *****************************************
+ * Created by lifx
+ * Created on 2018-08-10 10:55:12
+ *****************************************
+ */
+@charset "utf-8";
+
+
+/**
+ *****************************************
+ * boolean转化
+ *****************************************
+ */
+@function boolean($value) {
+    @return if($value == '', false, if($value == 0, false, $value));
+}
+
+
+/**
+ *************************************
+ * 屏幕密度深度
+ *************************************
+ */
+@mixin ratio($size: 2) {
+    @media only screen and (-webkit-min-device-pixel-ratio: #{$size}),
+    only screen and (min-device-pixel-ratio: #{$size}) {
+        @content;
+    }
+}
+
+
+/**
+ *************************************
+ * 连接字符串
+ *************************************
+ */
+@function str-join($map, $sep: '&', $eq: '=') {
+    $result: null;
+
+    // 拼接字符串
+    @each $key, $val in $map {
+        $param: if(boolean($val), $key + $eq + $val, $key);
+        $result: if(boolean($result), $result + $sep + $param, $param);
+    }
+
+    // 返回结果
+    @return $result;
+}
+
+
+/**
+ *****************************************
+ * 移除字符串
+ *****************************************
+ */
+@function str-replace($string, $search, $replace: '') {
+    $index: str-index($string, $search);
+
+    // 替换找到的字符串
+    @if $index {
+        $prevString: str-slice($string, 1, $index - 1);
+        $nextString: str-slice($string, $index + str-length($search));
+        @return $prevString + $replace + str-replace($nextString, $search, $replace);
+    }
+
+    // 返回原字符串
+    @return $string;
+}
+
+
+/**
+ *****************************************
+ * 编码字符串
+ *****************************************
+ */
+@function str-encode($string) {
+
+    // 替换特殊字符
+    $string: str-replace($string, '%', '%25');
+    $string: str-replace($string, '#', '%23');
+
+    // 返回参数
+    @return $string;
+}
+
+
+/**
+ *****************************************
+ * 生成连接
+ *****************************************
+ */
+@function url-encode($url, $args: null) {
+
+    // 重载参数
+    @if type-of($url) == 'map' {
+        @return url-encode('', $url);
+    }
+
+    // 生成查询字符参数
+    $args: if(boolean($args), str-join($args), '');
+
+    // 处理【url】
+    @if $url {
+
+        // 查找参数
+        $index: str-index($url, '?');
+
+        // 合并查询字符参数
+        @if $index {
+            $query: str-slice($url, $index + 1);
+            $url: str-slice($url, 0, $index - 1);
+
+            // 合并参数
+            @if $query {
+                $args: if(boolean($args), $query + '&' + $args, $query);
+            }
+        }
+    }
+
+    // 编码参数
+    @if $args {
+        $args: str-encode($args);
+        $url: if(boolean($url), $url + '?' + $args, $args);
+    }
+
+    // 返回结果
+    @return $url;
+}
+
+
+/**
+ *****************************************
+ * 生成路径
+ *****************************************
+ */
+@function uri($url, $args: null) {
+    @return url(url-encode($url, $args));
+}
